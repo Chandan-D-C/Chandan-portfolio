@@ -63,3 +63,74 @@ if(window.matchMedia('(min-width:901px)').matches){
   window.addEventListener('mousedown',()=>ring.classList.add('click'));
   window.addEventListener('mouseup',()=>ring.classList.remove('click'));
 }
+
+/* animated code terminal — simulated developer typing */
+(function(){
+  const el = document.getElementById('codeTermText');
+  if(!el) return;
+  const lines = [
+    {plain:"@RestController", html:'<span class="code-ann">@RestController</span>'},
+    {plain:"public class GridSenseController {", html:'<span class="code-kw">public</span> <span class="code-kw">class</span> <span class="code-fn">GridSenseController</span> {'},
+    {plain:'    @GetMapping("/forecast")', html:'    <span class="code-ann">@GetMapping</span>(<span class="code-str">"/forecast"</span>)'},
+    {plain:"    public Forecast getForecast() {", html:'    <span class="code-kw">public</span> Forecast <span class="code-fn">getForecast</span>() {'},
+    {plain:"        return service.predict();", html:'        <span class="code-kw">return</span> service.<span class="code-fn">predict</span>();'},
+    {plain:"    }", html:"    }"},
+    {plain:"}", html:"}"}
+  ];
+  let displayed = [];
+  let li = 0, ci = 0;
+  const TYPE_SPEED = 26, LINE_PAUSE = 200, END_PAUSE = 1800, ERASE_SPEED = 8;
+
+  function render(){
+    el.innerHTML = displayed.join('\n');
+  }
+  function typeChar(){
+    const line = lines[li];
+    if(ci <= line.plain.length){
+      const partial = displayed.slice();
+      partial[li] = line.plain.slice(0, ci);
+      el.innerHTML = partial.join('\n');
+      ci++;
+      setTimeout(typeChar, TYPE_SPEED);
+    } else {
+      displayed[li] = line.html;
+      render();
+      li++;
+      ci = 0;
+      if(li < lines.length){
+        setTimeout(typeChar, LINE_PAUSE);
+      } else {
+        setTimeout(eraseAll, END_PAUSE);
+      }
+    }
+  }
+  function eraseAll(){
+    if(displayed.length > 0){
+      displayed.pop();
+      render();
+      setTimeout(eraseAll, ERASE_SPEED);
+    } else {
+      li = 0; ci = 0; displayed = [];
+      setTimeout(typeChar, 500);
+    }
+  }
+  setTimeout(typeChar, 1000);
+})();
+
+/* hero video: play once, freeze on last frame */
+(function(){
+  const vid = document.getElementById('heroVideo');
+  if(!vid) return;
+  vid.loop = false;
+  vid.addEventListener('ended', function(){
+    // Freeze on the last frame instead of resetting/looping
+    vid.pause();
+    if(vid.duration && isFinite(vid.duration)){
+      vid.currentTime = vid.duration;
+    }
+  });
+  const playPromise = vid.play();
+  if(playPromise !== undefined){
+    playPromise.catch(function(){ /* autoplay blocked; stays on first frame, fine */ });
+  }
+})();
